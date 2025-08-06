@@ -68,6 +68,7 @@ protected:
 	// Interaction
 	void PerformInteractionCheck();
 	void Interact();
+	void CraftFirstItem();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractionDistance;

@@ -6,6 +6,8 @@
 #include "GameFramework/HUD.h"
 #include "CotFHUD.generated.h"
 
+class UDataTable;
+
 /**
  *
  */
@@ -20,8 +22,18 @@ public:
 	/** Primary draw call for the HUD */
 	virtual void DrawHUD() override;
 
+	void ShowCraftingMenu();
+	void HideCraftingMenu();
+
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
+	UDataTable* CraftingRecipesTable;
+
 private:
 	/** Crosshair asset pointer */
 	class UTexture2D* CrosshairTex;
+
+	bool bIsCraftingMenuVisible;
 
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "CraftingData.h"
 #include "InventoryComponent.generated.h"
 
 
@@ -24,6 +25,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	const TMap<FName, int32>& GetInventoryContents() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Crafting")
+	bool CanCraftItem(const FCraftingRecipe& Recipe) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Crafting")
+	void CraftItem(const FCraftingRecipe& Recipe);
 
 protected:
 	// Called when the game starts

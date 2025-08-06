@@ -57,3 +57,43 @@ const TMap<FName, int32>& UInventoryComponent::GetInventoryContents() const
 {
 	return Inventory;
 }
+
+bool UInventoryComponent::CanCraftItem(const FCraftingRecipe& Recipe) const
+{
+	for (const FItemQuantity& RequiredItem : Recipe.RequiredItems)
+	{
+		if (!Inventory.Contains(RequiredItem.ItemID) || Inventory[RequiredItem.ItemID] < RequiredItem.Quantity)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void UInventoryComponent::CraftItem(const FCraftingRecipe& Recipe)
+{
+	if (CanCraftItem(Recipe))
+	{
+		// Remove required items
+		for (const FItemQuantity& RequiredItem : Recipe.RequiredItems)
+		{
+			RemoveItem(RequiredItem.ItemID, RequiredItem.Quantity);
+		}
+
+		// Add output item
+		AddItem(Recipe.OutputItem.ItemID, Recipe.OutputItem.Quantity);
+
+		if (GEngine)
+		{
+			FString Msg = FString::Printf(TEXT("Crafted %s!"), *Recipe.OutputItem.ItemID.ToString());
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, Msg);
+		}
+	}
+	else
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Not enough resources to craft item."));
+		}
+	}
+}

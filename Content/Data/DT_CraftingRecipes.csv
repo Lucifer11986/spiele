@@ -1,0 +1,3 @@
+"","RequiredItems","OutputItem","Description"
+"WoodSpear","( (ItemID=""Wood"",Quantity=5) )","(ItemID=""WoodSpear"",Quantity=1)","A simple spear made of wood."
+"Campfire","( (ItemID=""Wood"",Quantity=10), (ItemID=""Stone"",Quantity=4) )","(ItemID=""Campfire"",Quantity=1)","A basic campfire to provide light and warmth."

@@ -7,6 +7,8 @@
 #include "Net/UnrealNetwork.h"
 #include "InteractableActor.h"
 #include "InventoryComponent.h"
+#include "CotFHUD.h"
+#include "Engine/DataTable.h"
 
 // Sets default values
 ACotFCharacter::ACotFCharacter()
@@ -137,6 +139,7 @@ void ACotFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACotFCharacter::Interact);
+	PlayerInputComponent->BindAction("Craft", IE_Pressed, this, &ACotFCharacter::CraftFirstItem);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACotFCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACotFCharacter::MoveRight);
@@ -159,6 +162,27 @@ void ACotFCharacter::MoveForward(float Value)
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
+	}
+}
+
+void ACotFCharacter::CraftFirstItem()
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		ACotFHUD* HUD = Cast<ACotFHUD>(PC->GetHUD());
+		if (HUD && HUD->CraftingRecipesTable && InventoryComponent)
+		{
+			TArray<FName> RowNames = HUD->CraftingRecipesTable->GetRowNames();
+			if (RowNames.Num() > 0)
+			{
+				FCraftingRecipe* Recipe = HUD->CraftingRecipesTable->FindRow<FCraftingRecipe>(RowNames[0], TEXT(""));
+				if (Recipe)
+				{
+					InventoryComponent->CraftItem(*Recipe);
+				}
+			}
+		}
 	}
 }
 
