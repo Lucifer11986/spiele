@@ -58,6 +58,15 @@ const TMap<FName, int32>& UInventoryComponent::GetInventoryContents() const
 	return Inventory;
 }
 
+bool UInventoryComponent::HasItems(FItemQuantity ItemCheck) const
+{
+	if (Inventory.Contains(ItemCheck.ItemID))
+	{
+		return Inventory[ItemCheck.ItemID] >= ItemCheck.Quantity;
+	}
+	return false;
+}
+
 bool UInventoryComponent::CanCraftItem(const FCraftingRecipe& Recipe) const
 {
 	for (const FItemQuantity& RequiredItem : Recipe.RequiredItems)

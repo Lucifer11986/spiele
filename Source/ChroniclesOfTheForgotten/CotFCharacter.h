@@ -70,6 +70,27 @@ protected:
 	void Interact();
 	void CraftFirstItem();
 
+	// Building
+	void ToggleBuildMode();
+	void CycleBuildable();
+	void SelectMaterialWood();
+	void SelectMaterialStone();
+	void UpdatePreview();
+	void PlaceBuildable();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building")
+	bool bIsInBuildMode;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Building")
+	UDataTable* BuildingMaterialsTable;
+
+	EBuildableType CurrentBuildableType;
+	FName CurrentMaterialID;
+
+	UPROPERTY()
+	ABuildableActor* PreviewActor;
+
+
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractionDistance;
 

@@ -1,0 +1,3 @@
+"","MaterialName","PartData"
+"Wood","Wood","((Foundation,(Cost=(ItemID=""Wood"",Quantity=10),PartMesh=""/Game/Models/Wood_Foundation.Wood_Foundation"")),(Wall,(Cost=(ItemID=""Wood"",Quantity=8),PartMesh=""/Game/Models/Wood_Wall.Wood_Wall"")))"
+"Stone","Stone","((Foundation,(Cost=(ItemID=""Stone"",Quantity=15),PartMesh=""/Game/Models/Stone_Foundation.Stone_Foundation"")),(Wall,(Cost=(ItemID=""Stone"",Quantity=12),PartMesh=""/Game/Models/Stone_Wall.Stone_Wall"")))"

@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	const TMap<FName, int32>& GetInventoryContents() const;
 
+	UFUNCTION(BlueprintPure, Category = "Inventory")
+	bool HasItems(FItemQuantity ItemCheck) const;
+
 	UFUNCTION(BlueprintCallable, Category = "Crafting")
 	bool CanCraftItem(const FCraftingRecipe& Recipe) const;
 
