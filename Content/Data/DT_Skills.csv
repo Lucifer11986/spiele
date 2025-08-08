@@ -1,4 +1,4 @@
-"","DisplayName","Description","SkillPointCost"
-"BuildCost1","Verbesserter Hammerschlag","Reduziert die Baukosten um 5%.","1"
-"GatherYield1","Effizienter Jäger","Erhöht die Ausbeute an Fleisch von Tieren um 10%.","1"
-"CraftSpeed1","Schnelle Hände","Erhöht die Herstellungsgeschwindigkeit um 10%.","1"
+"","DisplayName","Description","SkillPointCost","EffectClass"
+"BuildCost1","Verbesserter Hammerschlag","Reduziert die Baukosten um 5%.","1","/Script/ChroniclesOfTheForgotten.Effect_ModifyBuildCost"
+"GatherYield1","Effizienter Jäger","Erhöht die Ausbeute an Fleisch von Tieren.","1","/Script/ChroniclesOfTheForgotten.Effect_ModifyGatherYield"
+"Damage1","Mächtiger Schlag","Erhöht den Nahkampfschaden um 20%.","2","/Script/ChroniclesOfTheForgotten.Effect_ModifyDamage"

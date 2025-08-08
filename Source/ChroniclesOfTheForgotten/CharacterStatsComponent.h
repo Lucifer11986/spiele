@@ -21,6 +21,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Skills")
 	void UnlockSkill(FName SkillID);
 
+	float ApplyBuildCostEffects(float BaseCost);
+	int32 ApplyGatherYieldEffects(int32 BaseYield);
+	float ApplyDamageEffects(float BaseDamage);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

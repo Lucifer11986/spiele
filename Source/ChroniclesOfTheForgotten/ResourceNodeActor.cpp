@@ -24,7 +24,9 @@ void AResourceNodeActor::OnInteract_Implementation(AActor* InteractingActor)
 	ACotFCharacter* Character = Cast<ACotFCharacter>(InteractingActor);
 	if (Character && Character->InventoryComponent && Character->StatsComponent)
 	{
-		Character->InventoryComponent->AddItem(ResourceType, Quantity);
+		int32 ModifiedYield = Character->StatsComponent->ApplyGatherYieldEffects(Quantity);
+
+		Character->InventoryComponent->AddItem(ResourceType, ModifiedYield);
 		Character->StatsComponent->AddExperience(ExperienceValue);
 		Destroy();
 	}

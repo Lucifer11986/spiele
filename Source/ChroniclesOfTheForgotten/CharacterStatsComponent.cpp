@@ -4,6 +4,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/DataTable.h"
 #include "UObject/ConstructorHelpers.h"
+#include "GameplayEffect.h"
 
 UCharacterStatsComponent::UCharacterStatsComponent()
 {
@@ -95,4 +96,70 @@ void UCharacterStatsComponent::UnlockSkill(FName SkillID)
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Not enough skill points!"));
 	}
+}
+
+float UCharacterStatsComponent::ApplyBuildCostEffects(float BaseCost)
+{
+	if (!SkillDataTable) return BaseCost;
+
+	float ModifiedCost = BaseCost;
+
+	for (const FName& SkillID : UnlockedSkillIDs)
+	{
+		FSkillData* SkillData = SkillDataTable->FindRow<FSkillData>(SkillID, TEXT(""));
+		if (SkillData && SkillData->EffectClass)
+		{
+			UGameplayEffect* Effect = NewObject<UGameplayEffect>(this, SkillData->EffectClass);
+			if (Effect)
+			{
+				ModifiedCost = Effect->ApplyToBuildCost(ModifiedCost);
+			}
+		}
+	}
+
+	return ModifiedCost;
+}
+
+int32 UCharacterStatsComponent::ApplyGatherYieldEffects(int32 BaseYield)
+{
+	if (!SkillDataTable) return BaseYield;
+
+	int32 ModifiedYield = BaseYield;
+
+	for (const FName& SkillID : UnlockedSkillIDs)
+	{
+		FSkillData* SkillData = SkillDataTable->FindRow<FSkillData>(SkillID, TEXT(""));
+		if (SkillData && SkillData->EffectClass)
+		{
+			UGameplayEffect* Effect = NewObject<UGameplayEffect>(this, SkillData->EffectClass);
+			if (Effect)
+			{
+				ModifiedYield = Effect->ApplyToGatherYield(ModifiedYield);
+			}
+		}
+	}
+
+	return ModifiedYield;
+}
+
+float UCharacterStatsComponent::ApplyDamageEffects(float BaseDamage)
+{
+	if (!SkillDataTable) return BaseDamage;
+
+	float ModifiedDamage = BaseDamage;
+
+	for (const FName& SkillID : UnlockedSkillIDs)
+	{
+		FSkillData* SkillData = SkillDataTable->FindRow<FSkillData>(SkillID, TEXT(""));
+		if (SkillData && SkillData->EffectClass)
+		{
+			UGameplayEffect* Effect = NewObject<UGameplayEffect>(this, SkillData->EffectClass);
+			if (Effect)
+			{
+				ModifiedDamage = Effect->ApplyToDamage(ModifiedDamage);
+			}
+		}
+	}
+
+	return ModifiedDamage;
 }

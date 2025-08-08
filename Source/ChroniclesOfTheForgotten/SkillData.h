@@ -19,4 +19,7 @@ struct FSkillData : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     int32 SkillPointCost;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<class UGameplayEffect> EffectClass;
 };

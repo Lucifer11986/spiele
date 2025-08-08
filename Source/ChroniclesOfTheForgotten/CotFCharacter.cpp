@@ -296,9 +296,35 @@ void ACotFCharacter::SelectMaterialStone()
 
 void ACotFCharacter::PlaceBuildable()
 {
-	if (bIsInBuildMode && PreviewActor && BuildingMaterialsTable && InventoryComponent)
+	if (bIsInBuildMode && PreviewActor && BuildingMaterialsTable && InventoryComponent && StatsComponent)
 	{
-		// (Implementation remains the same)
+		FBuildingMaterialData* Row = BuildingMaterialsTable->FindRow<FBuildingMaterialData>(CurrentMaterialID, TEXT(""));
+		if (Row && Row->PartData.Contains(CurrentBuildableType))
+		{
+			const FBuildingPartInfo& PartInfo = Row->PartData[CurrentBuildableType];
+
+			float ModifiedCostQty = StatsComponent->ApplyBuildCostEffects(PartInfo.Cost.Quantity);
+			FItemQuantity ModifiedCost = PartInfo.Cost;
+			ModifiedCost.Quantity = FMath::CeilToInt(ModifiedCostQty);
+
+			if (InventoryComponent->HasItems(ModifiedCost))
+			{
+				InventoryComponent->RemoveItem(ModifiedCost.ItemID, ModifiedCost.Quantity);
+
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = this;
+				ABuildableActor* NewBuildable = GetWorld()->SpawnActor<ABuildableActor>(
+					ABuildableActor::StaticClass(),
+					PreviewActor->GetActorLocation(),
+					PreviewActor->GetActorRotation(),
+					SpawnParams);
+
+				if (NewBuildable)
+				{
+					NewBuildable->InitializeBuildable(CurrentMaterialID, CurrentBuildableType, BuildingMaterialsTable);
+				}
+			}
+		}
 	}
 	else
 	{
@@ -319,13 +345,15 @@ void ACotFCharacter::PerformMeleeAttack()
 	if (GetWorld()->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_Visibility, Sphere, Params))
 	{
 		AAiCharacterBase* AiChar = Cast<AAiCharacterBase>(HitResult.GetActor());
-		if (AiChar)
+		if (AiChar && StatsComponent)
 		{
-			float Damage = 25.0f; // Base damage
-			FPointDamageEvent DamageEvent(Damage, HitResult, GetActorForwardVector(), nullptr);
-			AiChar->TakeDamage(Damage, DamageEvent, GetController(), this);
+			float BaseDamage = 25.0f;
+			float ModifiedDamage = StatsComponent->ApplyDamageEffects(BaseDamage);
 
-			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("Hit %s!"), *AiChar->GetName()));
+			FPointDamageEvent DamageEvent(ModifiedDamage, HitResult, GetActorForwardVector(), nullptr);
+			AiChar->TakeDamage(ModifiedDamage, DamageEvent, GetController(), this);
+
+			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("Hit %s for %.1f damage!"), *AiChar->GetName(), ModifiedDamage));
 		}
 	}
 	else
