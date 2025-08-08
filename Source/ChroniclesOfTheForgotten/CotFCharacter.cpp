@@ -11,6 +11,8 @@
 #include "CotFHUD.h"
 #include "Engine/DataTable.h"
 #include "BuildableActor.h"
+#include "WorldStateManager.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ACotFCharacter::ACotFCharacter()
@@ -68,6 +70,9 @@ void ACotFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Find the World State Manager
+	WorldStateManagerRef = Cast<AWorldStateManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AWorldStateManager::StaticClass()));
+
 	if (HasAuthority())
 	{
 		GetWorldTimerManager().SetTimer(SurvivalStatTimerHandle, this, &ACotFCharacter::DecaySurvivalStats, 1.0f, true);
@@ -87,13 +92,24 @@ void ACotFCharacter::DecaySurvivalStats()
 {
 	if (HasAuthority())
 	{
-		CurrentHunger = FMath::Max(0.f, CurrentHunger - HungerDecrementValue);
+		float HungerModifier = 1.0f;
+		if (WorldStateManagerRef)
+		{
+			// It's night time if time is past sunset (0.75) or before sunrise (0.25)
+			if (WorldStateManagerRef->CurrentTimeOfDay > 0.75f || WorldStateManagerRef->CurrentTimeOfDay < 0.25f)
+			{
+				HungerModifier = 1.5f; // 50% more hunger decay at night (simulating cold)
+			}
+		}
+
+		CurrentHunger = FMath::Max(0.f, CurrentHunger - (HungerDecrementValue * HungerModifier));
 		CurrentThirst = FMath::Max(0.f, CurrentThirst - ThirstDecrementValue);
 
 		// Log to screen for debugging
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Hunger: %f, Thirst: %f"), CurrentHunger, CurrentThirst));
+			FString NightString = (HungerModifier > 1.0f) ? " (Night)" : "";
+			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Hunger: %.1f, Thirst: %.1f%s"), CurrentHunger, CurrentThirst, *NightString));
 		}
 	}
 }

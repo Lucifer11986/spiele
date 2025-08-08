@@ -97,6 +97,8 @@ protected:
 	UPROPERTY()
 	ABuildableActor* PreviewActor;
 
+	class AWorldStateManager* WorldStateManagerRef;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractionDistance;
