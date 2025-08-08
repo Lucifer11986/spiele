@@ -31,4 +31,7 @@ struct FCraftingRecipe : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FString Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (UIMin = 0))
+	int32 ExperienceValue;
 };

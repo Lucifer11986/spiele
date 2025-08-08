@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UInventoryComponent;
+class UCharacterStatsComponent;
 
 UCLASS()
 class CHRONICLESOFTHEFORGOTTEN_API ACotFCharacter : public ACharacter
@@ -17,6 +18,9 @@ class CHRONICLESOFTHEFORGOTTEN_API ACotFCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UInventoryComponent* InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UCharacterStatsComponent* StatsComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;

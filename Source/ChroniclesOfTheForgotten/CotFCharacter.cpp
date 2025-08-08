@@ -7,6 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "InteractableActor.h"
 #include "InventoryComponent.h"
+#include "CharacterStatsComponent.h"
 #include "CotFHUD.h"
 #include "Engine/DataTable.h"
 #include "BuildableActor.h"
@@ -14,6 +15,9 @@
 // Sets default values
 ACotFCharacter::ACotFCharacter()
 {
+	// Create stats component
+	StatsComponent = CreateDefaultSubobject<UCharacterStatsComponent>(TEXT("StatsComponent"));
+
 	// Building
 	bIsInBuildMode = false;
 	static ConstructorHelpers::FObjectFinder<UDataTable> BuildingTableObj(TEXT("/Game/Data/DT_BuildingMaterials.DT_BuildingMaterials"));

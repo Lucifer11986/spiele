@@ -28,4 +28,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Resource")
 	int32 Quantity;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Resource")
+	int32 ExperienceValue;
+
 };

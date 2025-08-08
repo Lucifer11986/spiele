@@ -7,6 +7,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "LootContainerActor.h"
+#include "CotFCharacter.h"
+#include "CharacterStatsComponent.h"
 
 // Sets default values
 AAiCharacterBase::AAiCharacterBase()
@@ -64,6 +66,13 @@ float AAiCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		Health -= ActualDamage;
 		if (Health <= 0.0f)
 		{
+			// Grant XP to the killer
+			ACotFCharacter* Killer = Cast<ACotFCharacter>(DamageCauser);
+			if (Killer && Killer->StatsComponent)
+			{
+				Killer->StatsComponent->AddExperience(ExperienceValue);
+			}
+
 			OnDeath();
 		}
 	}

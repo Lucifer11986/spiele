@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "InventoryComponent.h"
+#include "CotFCharacter.h"
+#include "CharacterStatsComponent.h"
 
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
@@ -91,6 +93,13 @@ void UInventoryComponent::CraftItem(const FCraftingRecipe& Recipe)
 
 		// Add output item
 		AddItem(Recipe.OutputItem.ItemID, Recipe.OutputItem.Quantity);
+
+		// Grant Experience
+		ACotFCharacter* PlayerChar = Cast<ACotFCharacter>(GetOwner());
+		if (PlayerChar && PlayerChar->StatsComponent && Recipe.ExperienceValue > 0)
+		{
+			PlayerChar->StatsComponent->AddExperience(Recipe.ExperienceValue);
+		}
 
 		if (GEngine)
 		{

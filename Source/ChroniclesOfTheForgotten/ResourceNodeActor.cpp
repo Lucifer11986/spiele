@@ -3,6 +3,8 @@
 #include "ResourceNodeActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "CotFCharacter.h"
+#include "InventoryComponent.h"
+#include "CharacterStatsComponent.h"
 
 AResourceNodeActor::AResourceNodeActor()
 {
@@ -11,19 +13,19 @@ AResourceNodeActor::AResourceNodeActor()
 
 	ResourceType = "None";
 	Quantity = 1;
+	ExperienceValue = 5;
 	InteractionPrompt = "Gather Resource";
 }
-
-#include "InventoryComponent.h"
 
 void AResourceNodeActor::OnInteract_Implementation(AActor* InteractingActor)
 {
 	Super::OnInteract_Implementation(InteractingActor);
 
 	ACotFCharacter* Character = Cast<ACotFCharacter>(InteractingActor);
-	if (Character && Character->InventoryComponent)
+	if (Character && Character->InventoryComponent && Character->StatsComponent)
 	{
 		Character->InventoryComponent->AddItem(ResourceType, Quantity);
+		Character->StatsComponent->AddExperience(ExperienceValue);
 		Destroy();
 	}
 }

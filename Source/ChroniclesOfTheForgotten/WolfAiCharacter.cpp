@@ -12,6 +12,7 @@ AWolfAiCharacter::AWolfAiCharacter()
     MaxHealth = 50.f;
     Health = MaxHealth;
     AttackDamage = 10.f;
+    ExperienceValue = 20;
 
     // Set Wolf-specific movement
     GetCharacterMovement()->MaxWalkSpeed = 450.f;

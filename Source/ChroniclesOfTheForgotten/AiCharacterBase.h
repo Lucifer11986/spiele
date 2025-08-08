@@ -45,4 +45,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Loot")
 	TArray<struct FItemQuantity> LootTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
+	int32 ExperienceValue;
 };
