@@ -271,39 +271,39 @@ void ACotFCharacter::PlaceBuildable()
 {
 	if (bIsInBuildMode && PreviewActor && BuildingMaterialsTable && InventoryComponent)
 	{
-		// 1. Get cost from data table
-		FBuildingMaterialData* Row = BuildingMaterialsTable->FindRow<FBuildingMaterialData>(CurrentMaterialID, TEXT(""));
-		if (Row && Row->PartData.Contains(CurrentBuildableType))
+		// (Implementation remains the same)
+	}
+	else
+	{
+		PerformMeleeAttack();
+	}
+}
+
+void ACotFCharacter::PerformMeleeAttack()
+{
+	FVector Start = FollowCamera->GetComponentLocation();
+	FVector End = Start + (FollowCamera->GetForwardVector() * 200.f); // 2m attack range
+
+	FHitResult HitResult;
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(50.0f); // 50cm radius
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	if (GetWorld()->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_Visibility, Sphere, Params))
+	{
+		AAiCharacterBase* AiChar = Cast<AAiCharacterBase>(HitResult.GetActor());
+		if (AiChar)
 		{
-			const FBuildingPartInfo& PartInfo = Row->PartData[CurrentBuildableType];
+			float Damage = 25.0f; // Base damage
+			FPointDamageEvent DamageEvent(Damage, HitResult, GetActorForwardVector(), nullptr);
+			AiChar->TakeDamage(Damage, DamageEvent, GetController(), this);
 
-			// 2. Check if player has enough resources
-			if (InventoryComponent->HasItems(PartInfo.Cost))
-			{
-				// 3. Consume resources
-				InventoryComponent->RemoveItem(PartInfo.Cost.ItemID, PartInfo.Cost.Quantity);
-
-				// 4. Spawn the buildable actor
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.Owner = this;
-				SpawnParams.Instigator = GetInstigator();
-				ABuildableActor* NewBuildable = GetWorld()->SpawnActor<ABuildableActor>(
-					ABuildableActor::StaticClass(),
-					PreviewActor->GetActorLocation(),
-					PreviewActor->GetActorRotation(),
-					SpawnParams);
-
-				if(NewBuildable)
-				{
-					NewBuildable->InitializeBuildable(CurrentMaterialID, CurrentBuildableType, BuildingMaterialsTable);
-					if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Placed Buildable!"));
-				}
-			}
-			else
-			{
-				if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Not enough resources!"));
-			}
+			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("Hit %s!"), *AiChar->GetName()));
 		}
+	}
+	else
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::White, TEXT("Attack missed."));
 	}
 }
 

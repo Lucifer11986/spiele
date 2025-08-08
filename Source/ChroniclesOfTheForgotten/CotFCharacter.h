@@ -78,6 +78,9 @@ protected:
 	void UpdatePreview();
 	void PlaceBuildable();
 
+	// Combat
+	void PerformMeleeAttack();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building")
 	bool bIsInBuildMode;
 
