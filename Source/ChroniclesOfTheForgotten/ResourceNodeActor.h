@@ -18,6 +18,8 @@ public:
 
 	virtual void OnInteract_Implementation(AActor* InteractingActor) override;
 
+	void InitializeNode(FName InResourceType, int32 InQuantity);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* MeshComponent;

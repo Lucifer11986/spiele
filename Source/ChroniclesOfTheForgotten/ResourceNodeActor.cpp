@@ -31,3 +31,10 @@ void AResourceNodeActor::OnInteract_Implementation(AActor* InteractingActor)
 		Destroy();
 	}
 }
+
+void AResourceNodeActor::InitializeNode(FName InResourceType, int32 InQuantity)
+{
+	ResourceType = InResourceType;
+	Quantity = InQuantity;
+	// Here you could also change the mesh based on resource type
+}
