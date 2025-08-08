@@ -85,6 +85,12 @@ protected:
 	// Combat
 	void PerformMeleeAttack();
 
+	// Save/Load
+	void SaveGame();
+	void LoadGame();
+
+	FString SaveSlotName;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building")
 	bool bIsInBuildMode;
 

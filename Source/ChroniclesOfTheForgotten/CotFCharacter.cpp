@@ -13,10 +13,13 @@
 #include "BuildableActor.h"
 #include "WorldStateManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "CotFSaveGame.h"
 
 // Sets default values
 ACotFCharacter::ACotFCharacter()
 {
+	SaveSlotName = "DefaultSaveSlot";
+
 	// Create stats component
 	StatsComponent = CreateDefaultSubobject<UCharacterStatsComponent>(TEXT("StatsComponent"));
 
@@ -184,6 +187,10 @@ void ACotFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("SelectMaterialWood", IE_Pressed, this, &ACotFCharacter::SelectMaterialWood);
 	PlayerInputComponent->BindAction("SelectMaterialStone", IE_Pressed, this, &ACotFCharacter::SelectMaterialStone);
 
+	// Save/Load
+	PlayerInputComponent->BindAction("SaveGame", IE_Pressed, this, &ACotFCharacter::SaveGame);
+	PlayerInputComponent->BindAction("LoadGame", IE_Pressed, this, &ACotFCharacter::LoadGame);
+
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACotFCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACotFCharacter::MoveRight);
@@ -324,6 +331,115 @@ void ACotFCharacter::PerformMeleeAttack()
 	else
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::White, TEXT("Attack missed."));
+	}
+}
+
+void ACotFCharacter::SaveGame()
+{
+	UCotFSaveGame* SaveGameInstance = Cast<UCotFSaveGame>(UGameplayStatics::CreateSaveGameObject(UCotFSaveGame::StaticClass()));
+	if (SaveGameInstance)
+	{
+		// Save Player Data
+		SaveGameInstance->PlayerData.Location = GetActorLocation();
+		SaveGameInstance->PlayerData.Rotation = GetActorRotation();
+		if(InventoryComponent)
+		{
+			SaveGameInstance->PlayerData.Inventory = InventoryComponent->GetInventoryContents();
+		}
+		if(StatsComponent)
+		{
+			SaveGameInstance->PlayerData.Level = StatsComponent->Level;
+			SaveGameInstance->PlayerData.ExperiencePoints = StatsComponent->ExperiencePoints;
+			SaveGameInstance->PlayerData.UnlockedSkillIDs = StatsComponent->UnlockedSkillIDs;
+		}
+
+		// Save World Data
+		if(WorldStateManagerRef)
+		{
+			SaveGameInstance->WorldTimeOfDay = WorldStateManagerRef->CurrentTimeOfDay;
+		}
+
+		// Save Buildables
+		TArray<AActor*> BuildableActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABuildableActor::StaticClass(), BuildableActors);
+		for (AActor* Actor : BuildableActors)
+		{
+			ABuildableActor* Buildable = Cast<ABuildableActor>(Actor);
+			if (Buildable)
+			{
+				FBuildableSaveData Data;
+				Data.Transform = Buildable->GetActorTransform();
+				Data.BuildableType = Buildable->BuildableType;
+				Data.MaterialID = Buildable->MaterialID;
+				SaveGameInstance->SavedBuildables.Add(Data);
+			}
+		}
+
+		// Write to disk
+		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveSlotName, 0))
+		{
+			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Game Saved!"));
+		}
+	}
+}
+
+void ACotFCharacter::LoadGame()
+{
+	UCotFSaveGame* LoadGameInstance = Cast<UCotFSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+	if (LoadGameInstance)
+	{
+		// Load Player Data
+		SetActorLocation(LoadGameInstance->PlayerData.Location);
+		SetActorRotation(LoadGameInstance->PlayerData.Rotation);
+		if(InventoryComponent)
+		{
+			InventoryComponent->Inventory = LoadGameInstance->PlayerData.Inventory;
+		}
+		if(StatsComponent)
+		{
+			StatsComponent->Level = LoadGameInstance->PlayerData.Level;
+			StatsComponent->ExperiencePoints = LoadGameInstance->PlayerData.ExperiencePoints;
+			StatsComponent->UnlockedSkillIDs = LoadGameInstance->PlayerData.UnlockedSkillIDs;
+			// Recalculate derived stats if necessary
+		}
+
+		// Load World Data
+		if(WorldStateManagerRef)
+		{
+			WorldStateManagerRef->CurrentTimeOfDay = LoadGameInstance->WorldTimeOfDay;
+		}
+
+		// Destroy existing buildables before loading new ones
+		TArray<AActor*> OldBuildables;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABuildableActor::StaticClass(), OldBuildables);
+		for (AActor* Actor : OldBuildables)
+		{
+			Actor->Destroy();
+		}
+
+		// Load Buildables
+		for (const FBuildableSaveData& BuildableData : LoadGameInstance->SavedBuildables)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			ABuildableActor* NewBuildable = GetWorld()->SpawnActor<ABuildableActor>(
+				ABuildableActor::StaticClass(),
+				BuildableData.Transform.GetLocation(),
+				BuildableData.Transform.GetRotation().Rotator(),
+				SpawnParams);
+
+			if (NewBuildable)
+			{
+				NewBuildable->SetActorTransform(BuildableData.Transform);
+				NewBuildable->InitializeBuildable(BuildableData.MaterialID, BuildableData.BuildableType, BuildingMaterialsTable);
+			}
+		}
+
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Game Loaded!"));
+	}
+	else
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No Save Game Found."));
 	}
 }
 
